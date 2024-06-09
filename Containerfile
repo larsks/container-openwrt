@@ -19,7 +19,8 @@ RUN apk add \
   qemu-img \
   curl \
   iproute2 \
-  tcpdump
+  tcpdump \
+  iptables
 WORKDIR /virt
 COPY --from=openwrt /virt/* ./
 COPY run-openwrt.sh /usr/bin/run-openwrt
