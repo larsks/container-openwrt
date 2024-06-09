@@ -1,4 +1,4 @@
-Run virtualized openwrt (for the [malta] platform) in a container.
+Run virtualized openwrt in a container.
 
 To start things up:
 

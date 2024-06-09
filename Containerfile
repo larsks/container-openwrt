@@ -5,17 +5,16 @@ ARG OPENWRT_VERSION=23.05.3
 RUN apk add curl
 WORKDIR /virt
 RUN curl -o vmlinux \
-  https://downloads.openwrt.org/releases/${OPENWRT_VERSION}/targets/malta/be/openwrt-${OPENWRT_VERSION}-malta-be-vmlinux.elf
+  https://downloads.openwrt.org/releases/${OPENWRT_VERSION}/targets/x86/64/openwrt-${OPENWRT_VERSION}-x86-64-generic-kernel.bin
 RUN curl -o rootfs.img.gz -LSsf \
-  https://downloads.openwrt.org/releases/${OPENWRT_VERSION}/targets/malta/be/openwrt-${OPENWRT_VERSION}-malta-be-rootfs-ext4.img.gz && \
+  https://downloads.openwrt.org/releases/${OPENWRT_VERSION}/targets/x86/64/openwrt-${OPENWRT_VERSION}-x86-64-generic-ext4-rootfs.img.gz && \
   gunzip rootfs.img.gz
 
 FROM docker.io/alpine:latest
 
 RUN apk add \
   bash \
-  qemu-system-mips \
-  qemu-system-mipsel \
+  qemu-system-x86_64 \
   qemu-bridge-helper \
   qemu-img \
   curl \
