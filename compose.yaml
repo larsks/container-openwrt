@@ -25,6 +25,8 @@ services:
     build:
       context: .
       dockerfile: Containerfile
+      args:
+        OPENWRT_VERSION: 23.05.3
     networks:
     - default
     - cluster
@@ -38,6 +40,7 @@ services:
     - NET_ADMIN
     devices:
     - /dev/net/tun
+    - /dev/kvm
     init: true
     stdin_open: true
     tty: true
