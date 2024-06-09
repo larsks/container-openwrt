@@ -70,6 +70,13 @@ services:
     - NET_ADMIN
     networks:
     - cluster
+    entrypoint:
+    - sh
+    - -c
+    - |
+      ip route add default via 10.1.5.1
+      exec "$@"
+    - arg0
     command:
     - sleep
     - inf
@@ -80,6 +87,13 @@ services:
     - NET_ADMIN
     networks:
     - cluster
+    entrypoint:
+    - sh
+    - -c
+    - |
+      ip route add default via 10.1.5.1
+      exec "$@"
+    - arg0
     command:
     - sleep
     - inf
