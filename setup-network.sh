@@ -16,7 +16,7 @@ move_address_to_bridge() {
 	ip link set "$bridge" up
 }
 
-default_gw=$(ip route show | awk '$1 == "default" {print $3}')
+set -eu
 
 if ! ip -d link show eth0 | grep -q bridge_slave; then
 	move_address_to_bridge eth0 br-eth0
@@ -26,9 +26,7 @@ if ! ip -d link show eth1 | grep -q bridge_slave; then
 	move_address_to_bridge eth1 br-eth1
 fi
 
-if [ -n "$default_gw" ] && ! ip route | grep -q '^default'; then
-	ip route add default via "$default_gw"
-fi
+ip route replace default via "$DEFAULT_GATEWAY"
 
 gw_bridge=$(ip route show | awk '$1 == "default" {print $5}')
 
