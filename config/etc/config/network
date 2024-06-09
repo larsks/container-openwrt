@@ -10,11 +10,11 @@ config globals 'globals'
 config interface 'admin'
 	option device 'eth0'
 	option proto 'dhcp'
+	option defaultroute '0'
 
 config interface 'wan'
 	option device 'eth1'
 	option proto 'dhcp'
-	option defaultroute '0'
 
 config interface 'lan'
 	option device 'eth2'

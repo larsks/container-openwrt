@@ -6,6 +6,8 @@ To start things up:
 docker compose up -d
 ```
 
+## Configuration
+
 The initial network configuration is useless; to reach the openwrt console:
 
 ```
@@ -15,6 +17,14 @@ docker compose attach openwrt
 When you're done, `^P^Q` to detach from the console.
 
 [malta]: https://openwrt.org/docs/techref/targets/malta
+
+The contents of the local `config` directory will be available in the openwrt virtual machine on device `/dev/vdb`:
+
+```
+mount /dev/vdb /mnt
+tar -C /mnt -cf- . | tar -o -C / -xf-
+reboot
+```
 
 ## Bumps in the road
 
