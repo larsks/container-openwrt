@@ -14,6 +14,17 @@ if ! [[ -f $VIRT_STATE_PATH/rootfs.img ]]; then
 	qemu-img create -b "$VIRT_IMAGE_PATH/rootfs.img" -F raw -f qcow2 "$VIRT_STATE_PATH/rootfs.img" 512m
 fi
 
+network_args=()
+for path in /sys/class/net/wrt*; do
+	[[ -d "$path" ]] || continue
+
+	link=${path##*/}
+	network_args+=(
+		-netdev "tap,ifname=$link,id=$link,script=no,downscript=no"
+		-device "virtio-net-device,netdev=$link"
+	)
+done
+
 exec qemu-system-x86_64 -M microvm -enable-kvm -nographic -m 1g \
 	-kernel "${VIRT_IMAGE_PATH}"/vmlinux \
 	-append "root=/dev/vda console=/dev/ttyS0,115200" \
@@ -23,8 +34,5 @@ exec qemu-system-x86_64 -M microvm -enable-kvm -nographic -m 1g \
 	-device virtio-blk-device,drive=vdb \
 	-netdev user,id=admin,hostfwd=tcp::22-:22,hostfwd=tcp::80-:80,hostfwd=tcp::443-:443 \
 	-device virtio-net-device,netdev=admin \
-	-netdev tap,ifname=wrtx,id=wrtx,script=no,downscript=no \
-	-device virtio-net-device,netdev=wrtx \
-	-netdev tap,ifname=wrti,id=wrti,script=no,downscript=no \
-	-device virtio-net-device,netdev=wrti \
+	"${network_args[@]}" \
 	"$@"

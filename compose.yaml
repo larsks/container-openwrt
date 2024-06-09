@@ -8,8 +8,7 @@ networks:
       driver: default
       config:
         - subnet: 10.1.3.0/24
-          ip_range: 10.1.3.0/28
-  cluster:
+  lan0:
     driver: bridge
     internal: true
     driver_opts:
@@ -18,7 +17,15 @@ networks:
       driver: default
       config:
         - subnet: 10.1.5.0/24
-          ip_range: 10.1.5.0/28
+  lan1:
+    driver: bridge
+    internal: true
+    driver_opts:
+      com.docker.network.bridge.inhibit_ipv4: "true"
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.1.7.0/24
 
 services:
   openwrt:
@@ -29,7 +36,8 @@ services:
         OPENWRT_VERSION: 23.05.3
     networks:
     - default
-    - cluster
+    - lan0
+    - lan1
     environment:
       OPENWRT_DEBUG: "${OPENWRT_DEBUG}"
       DEFAULT_GATEWAY: 10.1.3.1
@@ -69,7 +77,7 @@ services:
     cap_add:
     - NET_ADMIN
     networks:
-    - cluster
+    - lan0
     entrypoint:
     - sh
     - -c
@@ -86,12 +94,12 @@ services:
     cap_add:
     - NET_ADMIN
     networks:
-    - cluster
+    - lan1
     entrypoint:
     - sh
     - -c
     - |
-      ip route add default via 10.1.5.1
+      ip route add default via 10.1.7.1
       exec "$@"
     - arg0
     command:

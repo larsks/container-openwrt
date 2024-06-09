@@ -18,31 +18,26 @@ move_address_to_bridge() {
 
 set -eu
 
-if ! ip -d link show eth0 | grep -q bridge_slave; then
-	move_address_to_bridge eth0 br-eth0
-fi
-
-if ! ip -d link show eth1 | grep -q bridge_slave; then
-	move_address_to_bridge eth1 br-eth1
-fi
+for path in /sys/class/net/eth*; do
+	link=${path##*/}
+	bridge="br-$link"
+	echo "Attach link $link to $bridge"
+	if ! ip -d link show "$link" | grep -q bridge_slave; then
+		move_address_to_bridge "$link" "$bridge"
+	fi
+done
 
 ip route replace default via "$DEFAULT_GATEWAY"
 
-gw_bridge=$(ip route show | awk '$1 == "default" {print $5}')
+for path in /sys/class/net/br-eth*; do
+	bridge=${path##*/}
+	link=${bridge#br-}
+	tap="wrt-$link"
 
-case $gw_bridge in
-br-eth0) cluster_bridge=br-eth1 ;;
-br-eth1) cluster_bridge=br-eth0 ;;
-esac
-
-if ! ip link show wrtx >/dev/null 2>&1; then
-	ip tuntap add mode tap name wrtx
-	ip link set master "$gw_bridge" wrtx
-	ip link set wrtx up
-fi
-
-if ! ip link show wrti >/dev/null 2>&1; then
-	ip tuntap add mode tap name wrti
-	ip link set master "$cluster_bridge" wrti
-	ip link set wrti up
-fi
+	echo "Create tap device $tap attached to $bridge"
+	if ! ip link show "$tap" >/dev/null 2>&1; then
+		ip tuntap add mode tap name "$tap"
+		ip link set master "$bridge" "$tap"
+		ip link set "$tap" up
+	fi
+done

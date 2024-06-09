@@ -16,10 +16,16 @@ config interface 'wan'
 	option device 'eth1'
 	option proto 'dhcp'
 
-config interface 'lan'
+config interface 'lan0'
 	option device 'eth2'
 	option proto 'static'
 	option ipaddr '10.1.5.1'
+	option netmask '255.255.255.0'
+
+config interface 'lan1'
+	option device 'eth3'
+	option proto 'static'
+	option ipaddr '10.1.7.1'
 	option netmask '255.255.255.0'
 
 config rule
