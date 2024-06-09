@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ex
+set -e
 
 default_iface=$(ip route | awk '$1 == "default" {print $5}')
 default_gateway=$(ip route | awk '$1 == "default" {print $3}')
