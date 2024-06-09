@@ -72,36 +72,24 @@ services:
     init: true
 
   node0:
-    image: docker.io/alpine:latest
+    build:
+      context: node
+      dockerfile: Containerfile
     init: true
     cap_add:
     - NET_ADMIN
     networks:
     - lan0
-    entrypoint:
-    - sh
-    - -c
-    - |
-      ip route add default via 10.1.5.1
-      exec "$@"
-    - arg0
-    command:
-    - sleep
-    - inf
+    environment:
+      DEFAULT_GATEWAY: 10.1.5.1
   node1:
-    image: docker.io/alpine:latest
+    build:
+      context: node
+      dockerfile: Containerfile
     init: true
     cap_add:
     - NET_ADMIN
     networks:
     - lan1
-    entrypoint:
-    - sh
-    - -c
-    - |
-      ip route add default via 10.1.7.1
-      exec "$@"
-    - arg0
-    command:
-    - sleep
-    - inf
+    environment:
+      DEFAULT_GATEWAY: 10.1.7.1

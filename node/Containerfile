@@ -1,0 +1,7 @@
+FROM docker.io/alpine:latest
+
+RUN apk add openssh openssh-server
+RUN sed -i '/^#\?PermitRootLogin/ s/.*/PermitRootLogin yes/' /etc/ssh/sshd_config
+COPY entrypoint.sh /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["/usr/sbin/sshd", "-D"]
