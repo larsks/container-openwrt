@@ -1,0 +1,81 @@
+volumes:
+  state:
+
+networks:
+  default:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.1.3.0/24
+          ip_range: 10.1.3.0/28
+  cluster:
+    driver: bridge
+    internal: true
+    driver_opts:
+      com.docker.network.bridge.inhibit_ipv4: "true"
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.1.5.0/24
+          ip_range: 10.1.5.0/28
+
+services:
+  openwrt:
+    build:
+      context: .
+      dockerfile: Containerfile
+    networks:
+    - default
+    - cluster
+    environment:
+      OPENWRT_DEBUG: "${OPENWRT_DEBUG}"
+    ports:
+      - 8080:80
+      - 8443:443
+      - 8222:22
+    cap_add:
+    - NET_ADMIN
+    devices:
+    - /dev/net/tun
+    init: true
+    stdin_open: true
+    tty: true
+    volumes:
+      - state:/state
+    healthcheck:
+      test: ["CMD", "curl", "-Ssf", "http://localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  dnsmasq:
+    build:
+      context: dnsmasq/
+      dockerfile: Containerfile
+    networks:
+    - default
+    cap_add:
+    - NET_ADMIN
+    init: true
+
+  node0:
+    image: docker.io/alpine:latest
+    init: true
+    cap_add:
+    - NET_ADMIN
+    networks:
+    - cluster
+    command:
+    - sleep
+    - inf
+  node1:
+    image: docker.io/alpine:latest
+    init: true
+    cap_add:
+    - NET_ADMIN
+    networks:
+    - cluster
+    command:
+    - sleep
+    - inf

@@ -1,0 +1,5 @@
+FROM docker.io/alpine:latest
+RUN apk add bash dnsmasq tcpdump iproute2 iptables
+COPY entrypoint.sh /
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["dnsmasq", "-k", "--log-facility", "-", "-C", "/etc/dnsmasq.conf"]
