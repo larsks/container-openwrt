@@ -34,6 +34,9 @@ config zone
 config forwarding
 	option src 'lan'
 	option dest 'wan'
+
+config forwarding
+	option src 'lan'
 	option dest 'admin'
 
 config rule
