@@ -2,12 +2,14 @@ volumes:
   state:
 
 networks:
-  default:
+  wan:
     driver: bridge
     ipam:
       driver: default
       config:
         - subnet: 10.1.3.0/24
+          ip_range: 10.1.3.192/26
+          gateway: 10.1.3.1
   lan0:
     driver: bridge
     internal: true
@@ -35,7 +37,7 @@ services:
       args:
         OPENWRT_VERSION: 23.05.3
     networks:
-    - default
+    - wan
     - lan0
     - lan1
     environment:
@@ -61,15 +63,22 @@ services:
       timeout: 5s
       retries: 3
 
+  # The dnsmasq container allows the openwrt virtual machine
+  # to acquire an address on the "wan" network.
   dnsmasq:
     build:
       context: dnsmasq/
       dockerfile: Containerfile
     networks:
-    - default
+    - wan
     cap_add:
     - NET_ADMIN
     init: true
+    environment:
+      DHCP_RANGE_START: 10.1.3.10
+      DHCP_RANGE_END: 10.1.3.100
+      DHCP_NETMASK: 255.255.255.0
+      DEFAULT_GATEWAY: 10.1.3.1
 
   node0:
     build:
@@ -82,6 +91,7 @@ services:
     - lan0
     environment:
       DEFAULT_GATEWAY: 10.1.5.1
+
   node1:
     build:
       context: node
