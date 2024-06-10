@@ -1,5 +1,6 @@
 function(lan0_nodes=1, lan1_nodes=1)
-  local node(network, gateway) = {
+  local node(hostname, network, gateway) = {
+    hostname: hostname,
     build: {
       context: 'node',
       dockerfile: 'Containerfile',
@@ -132,10 +133,10 @@ function(lan0_nodes=1, lan1_nodes=1)
         },
       },
     } {
-      ['node%d' % i]: node('lan0', '10.1.5.1')
+      ['node-0-%d' % i]: node('node-0-%d' % i, 'lan0', '10.1.5.1')
       for i in std.range(0, lan0_nodes - 1)
     } {
-      ['node%d' % i]: node('lan1', '10.1.7.1')
-      for i in std.range(lan0_nodes, lan0_nodes + lan1_nodes - 1)
+      ['node-1-%d' % i]: node('node-1-%d' % i, 'lan1', '10.1.7.1')
+      for i in std.range(0, lan1_nodes - 1)
     },
   }
