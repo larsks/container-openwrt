@@ -5,10 +5,6 @@
 
 set -e
 
-if [[ -n $OPENWRT_DEBUG ]]; then
-	set -x
-fi
-
 if ! [[ -f $VIRT_STATE_PATH/rootfs.img ]]; then
 	echo "creating copy-on-write rootfs image"
 	qemu-img create -b "$VIRT_IMAGE_PATH/rootfs.img" -F raw -f qcow2 "$VIRT_STATE_PATH/rootfs.img" 512m
