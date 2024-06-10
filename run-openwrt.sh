@@ -10,14 +10,23 @@ if ! [[ -f $VIRT_STATE_PATH/rootfs.img ]]; then
 	qemu-img create -b "$VIRT_IMAGE_PATH/rootfs.img" -F raw -f qcow2 "$VIRT_STATE_PATH/rootfs.img" 512m
 fi
 
-network_args=()
-for path in /sys/class/net/wrt*; do
+for path in /sys/class/net/br-eth*; do
 	[[ -d "$path" ]] || continue
 
-	link=${path##*/}
+	bridge=${path##*/}
+	link=${bridge#br-}
+	tap="wrt-$link"
+
+	echo "Create tap device $tap attached to $bridge"
+	if ! ip link show "$tap" >/dev/null 2>&1; then
+		ip tuntap add mode tap name "$tap"
+	fi
+	ip link set master "$bridge" "$tap"
+	ip link set "$tap" up
+
 	network_args+=(
-		-netdev "tap,ifname=$link,id=$link,script=no,downscript=no"
-		-device "virtio-net-device,netdev=$link"
+		-netdev "tap,ifname=$tap,id=$tap,script=no,downscript=no"
+		-device "virtio-net-device,netdev=$tap"
 	)
 done
 

@@ -28,16 +28,3 @@ for path in /sys/class/net/eth*; do
 done
 
 ip route replace default via "$DEFAULT_GATEWAY"
-
-for path in /sys/class/net/br-eth*; do
-	bridge=${path##*/}
-	link=${bridge#br-}
-	tap="wrt-$link"
-
-	echo "Create tap device $tap attached to $bridge"
-	if ! ip link show "$tap" >/dev/null 2>&1; then
-		ip tuntap add mode tap name "$tap"
-		ip link set master "$bridge" "$tap"
-		ip link set "$tap" up
-	fi
-done
