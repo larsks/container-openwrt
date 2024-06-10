@@ -8,6 +8,7 @@ compose.yaml: compose.jsonnet
 
 .PHONY: compose-up compose-down
 compose-up: compose.yaml
+	docker compose build
 	docker compose up -d
 compose-down: compose.yaml
 	docker compose down --remove-orphans
